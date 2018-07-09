@@ -102,7 +102,7 @@ public class Main {
             activityName = nodes.next().getLabels().iterator().next().toString();
             activityIds.put(activityName, activityIndex);
             jsonNode.put("id", activityIndex++);
-            jsonNode.put("name", activityName);
+            jsonNode.put("caption", activityName);
             jsonNodes.add(jsonNode);
         }
         
@@ -120,6 +120,7 @@ public class Main {
             edgeToAdd.put("source", activityIds.get(source));
             edgeToAdd.put("target", activityIds.get(target));
             edgeToAdd.put("weight", 1);
+            edgeToAdd.put("caption", edge.getProperty("PROCESS"));
             
             if(!jsonEdges.contains(edgeToAdd)){
                 jsonEdges.add(edgeToAdd);
@@ -240,6 +241,7 @@ public class Main {
 //                    //time in ms is node weight
                     rel.setProperty("TIME_DIF", resultSet.getLong(6));
                     rel.setProperty("START", resultSet.getString(5));
+                    rel.setProperty("PROCESS", resultSet.getString(2));
                 }
                 
             } 
@@ -264,7 +266,7 @@ public class Main {
 //            ListenableDirectedWeightedGraph<String, DefaultWeightedEdge> g = new ListenableDirectedWeightedGraph<>(DefaultWeightedEdge.class);
             
             JSONObject jsonGraph = buildGraphJSON(graphDb);
-            try (FileWriter file = new FileWriter("/Users/i2scmg/Documents/graphVisualize/jsonGraph.json")) {
+            try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\neo4jTest\\graphVisualize\\jsonGraph.json")) {
                 file.write(jsonGraph.toJSONString());
                 System.out.println("Successfully Copied JSON Object to File...");
                 System.out.println("\nJSON Object: " + jsonGraph);
