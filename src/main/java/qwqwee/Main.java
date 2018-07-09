@@ -213,7 +213,7 @@ public class Main {
                     + "[DURATION] "
                     + "FROM [WF].[i2sflowbam].[PROC_GRAPH] INNER JOIN [WF].[i2sflowbam].[PROC_EXECS] "
                     + "ON [PROC_GRAPH].[PROCESS_KEY] = PROCESS_DEF_KEY AND CURRENT_ACT_ID = ACTIVITY_KEY "
-                    + "WHERE [PROC_GRAPH].[PROCESS_KEY] <= 5101"
+                    + "WHERE [PROC_GRAPH].[PROCESS_KEY] <= 6000"
                     + "ORDER BY [PROC_GRAPH].[PROCESS_KEY]";
             
             statement = connection.createStatement(
