@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Stack;
 
 import javax.swing.JFrame;
@@ -213,7 +214,7 @@ public class Main {
                     + "[DURATION] "
                     + "FROM [WF].[i2sflowbam].[PROC_GRAPH] INNER JOIN [WF].[i2sflowbam].[PROC_EXECS] "
                     + "ON [PROC_GRAPH].[PROCESS_KEY] = PROCESS_DEF_KEY AND CURRENT_ACT_ID = ACTIVITY_KEY "
-                    + "WHERE [PROC_GRAPH].[PROCESS_KEY] <= 6000"
+                    + "WHERE [PROC_GRAPH].[PROCESS_KEY] >= 10000"
                     + "ORDER BY [PROC_GRAPH].[PROCESS_KEY]";
             
             statement = connection.createStatement(
@@ -224,7 +225,7 @@ public class Main {
             //create relationships which represent each instance
             // estes tempos sao tempos totais ate ao fim do processo
             while (resultSet.next()) {                
-                if(!(resultSet.getString(3).compareTo(resultSet.getString(4)) == 0)){
+                if(!(resultSet.getString(3) == null) && !(resultSet.getString(4)==null) && !(resultSet.getString(3).compareTo(resultSet.getString(4)) == 0)){
                     node = graphDb.findNodes(labels.get(resultSet.getString(3))).next();
                     targetNode = graphDb.findNodes(labels.get(resultSet.getString(4))).next();
                     rel = node.createRelationshipTo(targetNode, RelationshipType.withName(resultSet.getString(2)));
@@ -270,6 +271,22 @@ public class Main {
                 file.write(jsonGraph.toJSONString());
                 System.out.println("Successfully Copied JSON Object to File...");
                 System.out.println("\nJSON Object: " + jsonGraph);
+            }
+            
+            Scanner scanner = new Scanner(System.in);
+            String input;
+            result.close();
+            while(!(input = scanner.nextLine()).equals("end")){
+                System.out.println(input);
+                try{
+                    result = graphDb.execute(input);
+                    while(result.hasNext()){
+                        System.out.println(result.next());
+                    }
+                } 
+                catch(Exception e) {
+                    e.printStackTrace(); 
+                }
             }
         }
         catch(Exception e) {
