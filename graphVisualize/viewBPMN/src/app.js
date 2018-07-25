@@ -21,30 +21,42 @@ viewer.importXML(diagram, function (err) {
   var elements = {};
   var color = "";
   console.log(elementRegistry.getAll());
-  elementRegistry.filter(element => nodeTypes.includes(element.type)).forEach(element => console.log(element))
-    // .forEach(element => nodes[element.businessObject.name]["object"] = element);
+  // elementRegistry.filter(element => nodeTypes.includes(element.type))
+  //  .forEach(element => {
+  //   if(element.businessObject.name in nodes)
+  //     nodes[element.businessObject.name][3] = element;
+  //  });
+  var totalInstances = nodes["total_instances"];
+  var connectionObject;
 
   for (var node in nodes) {
     if (nodes.hasOwnProperty(node)) {
-      if (node[0].instances <= 500)
-        color = "rgba(0,255,0,1)";
-      else if (node[0].instances <= 1500)
-        color = "rgba(255,255,0,1)";
-      else
-        color = "rgba(255, 0, 0, 1)";
-
-      overlays.add(node.object, {
-        position: {
-          top: 0,
-          left: 0
-        },
-        html: $('<div class="highlight-overlay">')
-          .css({
-            width: node.object.width,
-            height: node.object.height,
-            "background-color": color
-          })
-      })
+      nodes[node].forEach(function(connection){
+        if (connection.instances < totalInstances * 0.1)
+          color = "rgba(0,255,0,1)";
+        else if (connection.instances < totalInstances * 0.25)
+          color = "rgba(255,255,0,1)";
+        else if (connection.instances < totalInstances * 0.5)
+          color = "rgba(255,69,0,1)";
+        else
+          color = "rgba(255,0,0,1)";
+        console.log(node);
+        console.log(connection.instances);
+        connectionObject = elementRegistry.filter(element => element.type == "bpmn:SequenceFlow").find(element => element.businessObject.sourceRef.name === node && element.businessObject.targetRef.name === connection.target)
+        console.log(connectionObject);
+        overlays.add(connectionObject, {
+          position: {
+            top: 0,
+            left: 0
+          },
+          html: $('<div class="highlight-overlay">')
+            .css({
+              width: Math.max(10, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].x - connectionObject.waypoints[0].x)),
+              height: Math.max(5, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].y - connectionObject.waypoints[0].y)),
+              "background-color": color
+            })
+        })
+      });
     }
   }
 

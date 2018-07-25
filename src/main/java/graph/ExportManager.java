@@ -140,7 +140,8 @@ public class ExportManager implements Command{
                 ((JSONArray) jsonNodes.get(source)).add(node);
             }
         }
-        
+        int noInstances = (int) graphDb.execute("MATCH ()-[r]-() RETURN COUNT(r) as num").next().get("num");
+        jsonNodes.put("total_instances", noInstances);
         try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\BPMN-graph\\graphVisualize\\viewBPMN\\resources\\nodes.json")){
                 file.write(jsonNodes.toJSONString());
                 return "Successfully copied JSON Object to File";
