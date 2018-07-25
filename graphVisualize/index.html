@@ -1,54 +1,21 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/alchemyjs/0.4.2/alchemy.min.css" />
-  <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/alchemyjs/0.4.2/alchemy.min.css"/>
 </head>
 
 <body>
-  <div class="alchemy" id="alchemy"></div>
+    <div class="alchemy" id="alchemy"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alchemyjs/0.4.2/scripts/vendor.js"></script>
+    <script src="js/alchemy.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+        
+    <script src = "js/jsonGraph.js"></script>
+    <script src = "js/alchemyConf.js"></script>
+    <!-- <script src = "js/extra.js"></script> -->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/alchemyjs/0.4.2/scripts/vendor.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/alchemyjs/0.4.2/alchemy.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-    crossorigin="anonymous"></script>
-  
-  <script type="text/javascript">
-    var weight
-    var config = {
-      dataSource: 'https://api.myjson.com/bins/1cw322',
-      edgeCaption: 'weight',
-      directedEdges: true,
-      nodeStyle: {
-                "all": {
-                    "borderColor": "#127DC1",
-                    "borderWidth": function(d, radius) {
-                        return radius / 4
-                    }
-                }
-            },
-            edgeStyle: {
-                "all": {
-                    "width": function(d) {
-                     return Math.min(30, Math.max(d.getProperties().width), 4)
-                    },
-                    "color": function(d) { 
-                      weight = d.getProperties().weight
-                        if(weight <= 500)
-                          return "rgba(0,255,0,1)" 
-                        else if(weight <= 1500)
-                          return "rgba(255,255,0,1)"
-                        else 
-                          return "rgba(255, 0, 0, 1)" 
-                        2/(1+Math.exp(-2*d.getProperties().weight)) -1 + " )" 
-                    }
-                }
-            }
-    };
-
-    alchemy = new Alchemy(config)
-  </script>
 </body>
 
 </html>
