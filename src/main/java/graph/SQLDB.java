@@ -3,7 +3,11 @@ package graph;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
+/**
+ * Deals with connection to the SQL server
+ * @author i2scmg
+ *
+ */
 public class SQLDB {
     private Connection connection;
     
@@ -11,6 +15,10 @@ public class SQLDB {
         this.connection = connection;
     }
     
+    /**
+     * Gets the question names from the questionaires.
+     * @return Result with question names.
+     */
     public ResultSet getQuestions(){
         String query = "SELECT DISTINCT"
                 + "[QUESTION_KEY] "
@@ -30,6 +38,10 @@ public class SQLDB {
         }
     }
     
+    /**
+     * Gets the answers to the questionnaires.
+     * @return Result with answers.
+     */
     public ResultSet getAnswers(){
         String query = "SELECT"
                 + "[ANSWER],"
@@ -50,6 +62,10 @@ public class SQLDB {
         }
     }
     
+    /**
+     * Gets all the activities from the database.
+     * @return Result with activity names.
+     */
     public ResultSet getActivities(){
         String query = "SELECT DISTINCT"
                 + "[CURRENT_ACT_ID] "
@@ -68,6 +84,10 @@ public class SQLDB {
         }
     }
     
+    /**
+     * Gets all the processes from the database.
+     * @return Result with processes.
+     */
     public ResultSet getProcesses(){
         String query = "SELECT "
                 + "[ID_NODE], "

@@ -12,7 +12,7 @@ var viewer = new BpmnViewer({
   container: '#canvas'
 });
 
-viewer.importXML(diagram, function(err) {
+viewer.importXML(diagram, function (err) {
   "use strict";
   var nodes = JSONnodes;
   var nodeTypes = ["bpmn:Task", "bpmn:EndEvent", "bpmn:StartEvent"];
@@ -21,14 +21,14 @@ viewer.importXML(diagram, function(err) {
   var elements = {};
   var color = "";
   console.log(elementRegistry.getAll());
-  elementRegistry.filter(element => nodeTypes.includes(element.type))
-                 .forEach(element => nodes[element.businessObject.name]["object"] = element);
+  elementRegistry.filter(element => nodeTypes.includes(element.type)).forEach(element => console.log(element))
+    // .forEach(element => nodes[element.businessObject.name]["object"] = element);
 
   for (var node in nodes) {
     if (nodes.hasOwnProperty(node)) {
-      if (node.instances <= 500)
+      if (node[0].instances <= 500)
         color = "rgba(0,255,0,1)";
-      else if (node.instances <= 1500)
+      else if (node[0].instances <= 1500)
         color = "rgba(255,255,0,1)";
       else
         color = "rgba(255, 0, 0, 1)";
@@ -37,13 +37,13 @@ viewer.importXML(diagram, function(err) {
         position: {
           top: 0,
           left: 0
-      },
-      html:  $('<div class="highlight-overlay">')
-            .css({
-              width: node.object.width,
-              height: node.object.height,
-              "background-color": color
-            })
+        },
+        html: $('<div class="highlight-overlay">')
+          .css({
+            width: node.object.width,
+            height: node.object.height,
+            "background-color": color
+          })
       })
     }
   }

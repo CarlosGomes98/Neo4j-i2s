@@ -2,8 +2,11 @@ package graph;
 
 import java.util.Objects;
 
-import graph.Main.JSONEdge;
-
+/**
+ * Describes an edge in the visualization
+ * @author i2scmg
+ *
+ */
 public class Edge {
     private final String source;
     private final String target;

@@ -31,14 +31,25 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 
+/**
+ * Deals with exporting data from neo4j to other formats.
+ * @author i2scmg
+ *
+ */
 public class ExportManager implements Command{
     private GraphDatabaseService graphDb;
     private SQLDB sql;
+    
     public ExportManager(GraphDatabaseService graphDb, SQLDB sql){
         this.graphDb = graphDb;
         this.sql = sql;
     }
     
+    /**
+     * Parses the command line input and calls the correct function
+     * @param args The command line argument given.
+     * @return The result if successful, "failure" if unsuccessful or "No method found" if the command does not exist
+     */
     public String execute(String args){
         String[] split = args.split(" ", 2);
         switch(split[0]){
@@ -56,6 +67,11 @@ public class ExportManager implements Command{
         return "No method found";
     }
     
+    /**
+     * Finds whether a process was accepted or not
+     * @param processId The id of the process
+     * @return "Fail" or "Accept"
+     */
     public String processResult(long processId){
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("processId", processId);
@@ -66,6 +82,10 @@ public class ExportManager implements Command{
         return "Accept";
     }
     
+    /**
+     * Build a graphJson representation of the process graph.
+     * @return A success or failure message.
+     */
     public String buildJson(){
         JSONObject jsonGraph = buildGraphJSON(graphDb);
         try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\BPMN-graph\\graphVisualize\\js\\jsonGraph.js")){
@@ -78,6 +98,11 @@ public class ExportManager implements Command{
         }
     }
     
+    /**
+     * Starter and ender nodes have that as their label as well. Find their activity label.
+     * @param labels Labels that the node has.
+     * @return The label indicating its activity name.
+     */
     public String getActivityLabel(ArrayList<String> labels){
         if(labels.get(0).equals("starter") || labels.get(0).equals("ender")){
             return labels.get(1);
@@ -85,24 +110,35 @@ public class ExportManager implements Command{
         return labels.get(0);
     }
     
+    /**
+     * Build the json file needed to enrich the bpmn.js.
+     * @return Success or failure message.
+     */
     public String bpmn(){
         Result result = graphDb.execute("MATCH (s)-[r]->(t) RETURN labels(s) as source, labels(t) as target, avg(r.TIME_DIF) as time, COUNT(r) as instances ORDER BY time DESC");
-        JSONArray jsonNodes = new JSONArray();
+        JSONObject jsonNodes = new JSONObject();
         Map<String, Object> row;
         JSONObject node;
-        String[] properties = {"source", "target", "time", "instances"};
-        
+        String[] properties = {"target", "time", "instances"};
+        String source;
         while(result.hasNext()){
             row = result.next();
             node = new JSONObject();
             for(String property : properties){
-                if(property.equals("target") || property.equals("source"))
+                if(property.equals("target"))
                     node.put(property, getActivityLabel((ArrayList) row.get(property)));
                 else
                     node.put(property, row.get(property));
                 
             }
-            jsonNodes.add(node);
+            source = getActivityLabel((ArrayList) row.get("source"));
+            if(jsonNodes.containsKey(source)){
+                ((JSONArray) jsonNodes.get(source)).add(node);
+            }
+            else{
+                jsonNodes.put(source, new JSONArray());
+                ((JSONArray) jsonNodes.get(source)).add(node);
+            }
         }
         
         try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\BPMN-graph\\graphVisualize\\viewBPMN\\resources\\nodes.json")){
@@ -115,6 +151,10 @@ public class ExportManager implements Command{
         }
     }
     
+    /**
+     * Build a text file with questionnaire data.
+     * @return Success or failure message.
+     */
     public String buildML(){
         ResultSet questions = sql.getQuestions();
         ResultSet answers = sql.getAnswers();
@@ -150,6 +190,10 @@ public class ExportManager implements Command{
         }
     }
     
+    /**
+     * Build a BPMN 2.0 representation of the process graph.
+     * @return Success or failure message.
+     */
     public String buildXML(){
         try{
             BpmnModelInstance modelInstance = buildBPMNXML();
@@ -162,6 +206,7 @@ public class ExportManager implements Command{
             return e.getMessage();
         }
     }
+    
     
     protected <T extends BpmnModelElementInstance> T createElement(BpmnModelInstance modelInstance, BpmnModelElementInstance parentElement, String id, Class<T> elementClass) {
         T element = modelInstance.newInstance(elementClass);
@@ -181,6 +226,10 @@ public class ExportManager implements Command{
         return sequenceFlow;
       }
     
+    /**
+     * Helper method for doing the bulk of the work in building the BPMN 2.0 representation.
+     * @return XML representation of the process graph.
+     */
     private BpmnModelInstance buildBPMNXML(){
         Transaction tx = graphDb.beginTx();
         ResourceIterator<Node> nodes = graphDb.getAllNodes().iterator();

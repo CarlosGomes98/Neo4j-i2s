@@ -47,6 +47,11 @@ import org.neo4j.graphdb.Transaction;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
+/**
+ * Deals with everything to do with managing the database.
+ * @author i2scmg
+ *
+ */
 public class GraphDatabase implements Command{
     private HashMap<String, Label> labels;
     private GraphDatabaseService graphDb;
@@ -55,7 +60,11 @@ public class GraphDatabase implements Command{
         this.graphDb = graphDb;
         this.sql = sql;
     }
-    
+    /**
+     * Parses the command line input and calls the correct function
+     * @param args The command line argument given.
+     * @return The result if successful, "failure" if unsuccessful or "No method found" if the command does not exist
+     */
     public String execute(String args){
         String[] split = args.split(" ", 2);
         switch(split[0]){
@@ -63,13 +72,17 @@ public class GraphDatabase implements Command{
             return populate();
         case "query":
             return query(split[1]);
-        case "analyse":
-            return analyse();
+        case "analyze":
+            return analyze();
         }
         return "No method found";
     }
     
-    public String analyse(){
+    /**
+     * Calculates the average time for each activity change
+     * @return String with the average time for each activity change
+     */
+    public String analyze(){
         
         Result result = graphDb.execute("MATCH ()-[r]->() RETURN type(r) as label, avg(r.TIME_DIF) as time ORDER BY time DESC");
         StringBuilder resultBuilder = new StringBuilder();
@@ -82,6 +95,11 @@ public class GraphDatabase implements Command{
         return resultBuilder.toString();
     }
     
+    /**
+     * Executes a cypher query
+     * @param query A cypher query
+     * @return Result of the query
+     */
     public String query(String query){
         Result result = graphDb.execute(query);
         StringBuilder resultBuilder = new StringBuilder();
@@ -93,7 +111,12 @@ public class GraphDatabase implements Command{
     }
     
    
-    
+    /**
+     * Sorts the nodes topologically, useful for finding the critical path
+     * @param node Starting node
+     * @param visited Boolean array of nodes that have been visited
+     * @param stack Stack of node order so far
+     */
     private  void topologicalSort(Node node, boolean[] visited, Stack<Node> stack) {
         visited[(Integer) node.getProperty("id")] = true;
         Iterator<Relationship> edges = node.getRelationships().iterator();
@@ -107,6 +130,10 @@ public class GraphDatabase implements Command{
         stack.push(node);
     }
     
+    /**
+     * Finds the critical path. Not as useful as was expected as processes tend to not fork out.
+     * @return The critical path.
+     */
     public String critical(){
         
         HashSet<String> versions = new HashSet<String>();
@@ -197,6 +224,10 @@ public class GraphDatabase implements Command{
           
         }
     
+    /**
+     * Extracts data from the SQL database into the neo4j database
+     * @return "Success" or "Failure"
+     */
     
     public String populate(){
         Transaction tx = graphDb.beginTx();
@@ -226,27 +257,8 @@ public class GraphDatabase implements Command{
                     node.setProperty("activity", resultSet.getString(1));
                 }
                 
-            }             
-//            Node startNode = graphDb.createNode(labels.get("start"));
-//            startNode.setProperty("activity", "start");
-//            startNode.setProperty("version", date);
-//            ResourceIterator<Node> starterNodes = graphDb.findNodes(labels.get("starter"), "version", date);
-//            Relationship r;
-//            while(starterNodes.hasNext()){
-//                r = startNode.createRelationshipTo(starterNodes.next(), RelationshipType.withName("starting"));
-//                r.setProperty("weight", 0);
-//                r.setProperty("PROCESS",-1);
-//            }
-            
-//            Node endNode = graphDb.createNode(labels.get("end"));
-//            endNode.setProperty("activity", "end");
-//            endNode.setProperty("version", date);
-//            ResourceIterator<Node> enderNodes = graphDb.findNodes(labels.get("starter"), "version", date);
-//            while(enderNodes.hasNext()){
-//                r = enderNodes.next().createRelationshipTo(endNode, RelationshipType.withName("ending"));
-//                r.setProperty("WEIGHT", 0);
-//                r.setProperty("PROCESS",-1);
-//            }
+            }  
+
             Node nullNode = graphDb.createNode(labels.get("null"));
             nullNode.setProperty("activity", "null");
             nullNode.setProperty("version", date);
@@ -260,7 +272,7 @@ public class GraphDatabase implements Command{
             //create relationships which represent each instance
             // estes tempos sao tempos totais ate ao fim do processo
             while (resultSet.next()){
-                if(!(resultSet.getString(3) == null)){// && !(resultSet.getString(4)==null)){// && !(resultSet.getString(3).compareTo(resultSet.getString(4)) == 0)){
+                if(!(resultSet.getString(3) == null)){
                     node = graphDb.findNodes(labels.get(resultSet.getString(3)), "version", date).next();
                     if(resultSet.getString(4) == null){
                         targetNode = nullNode;
@@ -277,21 +289,8 @@ public class GraphDatabase implements Command{
                         rel.setProperty("START", resultSet.getString(5));
                         rel.setProperty("PROCESS", resultSet.getLong(2));
                         rel.setProperty("VERSION", date);
-     
-//                        if(node.hasLabel(labels.get("starter"))){
-//                            rel = startNode.createRelationshipTo(node, RelationshipType.withName("Starting"));
-//                            rel.setProperty("PROCESS",-1);
-//                            rel.setProperty("VERSION", date);
-//                        }
-                    //make relationship from start or to end if its a starter or ender
 
                     }
-                    
-//                    if(node.hasLabel(labels.get("ender"))){
-//                        rel = node.createRelationshipTo(endNode, RelationshipType.withName("Ending"));
-//                        rel.setProperty("PROCESS",-1);
-//                        rel.setProperty("VERSION", date);
-//                    }
                 }
             }
             tx.success();
@@ -300,7 +299,7 @@ public class GraphDatabase implements Command{
         catch(Exception e){
             tx.failure();
             e.printStackTrace();
-            return "failure";
+            return "Failure";
         }
         finally{
             tx.close();

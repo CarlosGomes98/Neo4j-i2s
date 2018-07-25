@@ -4,18 +4,19 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.Stack;
 
 import org.json.simple.JSONObject;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+
+/**
+ * Starter class. Instantiates connections to SQL and neo4j databases.
+ * @author i2scmg
+ *
+ */
 public class Main {
-    private static HashMap<String, Integer> id = new HashMap<String, Integer>();
     private static final File DB_Folder = new File("C:\\i2S-devenv\\workspace\\BPMN-graph\\db");
     
     public static class JSONEdge extends JSONObject{
@@ -34,18 +35,6 @@ public class Main {
         }
     }
     
-    private  void topologicalSort(Node node, boolean[] visited, Stack<Node> stack) {
-        visited[(Integer) node.getProperty("id")] = true;
-        Iterator<Relationship> edges = node.getRelationships().iterator();
-        
-        while(edges.hasNext()) {
-            Node currentNode = edges.next().getEndNode();
-            if(!visited[(Integer) currentNode.getProperty("id")]) {
-                topologicalSort(currentNode, visited, stack);
-            }
-        }
-        stack.push(node);
-    }
     
     private static Connection dbConnect(String username, String password, String url){
         Connection connection = null;
@@ -95,75 +84,6 @@ public class Main {
         
         graphDb.shutdown();
         if(connection!= null) try { connection.close(); } catch(Exception e) {}
-                
-        
-//        PathFinder <WeightedPath> finder = GraphAlgoFactory.dijkstra(
-//                PathExpanders.forTypeAndDirection(RelTypes.KNOWS, Direction.OUTGOING), "weight");
-//        
-//        WeightedPath path = finder.findSinglePath(nodes[0], nodes[9]);
-//        
-//        for(Node node : path.nodes()){
-//            System.out.print(node.getProperty("id") + "->");
-//        }
-//        System.out.println();
-//        
-//        //topological order
-//        Stack<Node> stack = new Stack<Node>();
-//        boolean[] visited = new boolean[10];
-//        for(int i = 0; i < 10; i++){
-//            visited[i] = false;
-//        }
-//        
-//        for(int i = 0; i < 10; i++){
-//            if(visited[i] == false){
-//                topologicalSort(nodes[i], visited, stack);
-//            }
-//        }
-//        
-//        int i = 0;
-//        Node element;
-//        Node[] inOrderNodes = new Node[10];
-//        while(!stack.isEmpty()){
-//            element = stack.pop();
-//            element.setProperty("order", i);
-//            inOrderNodes[i] = element;
-//            i++;
-//        }
-//        
-//        for(i = 0; i < 10; i++){
-//            nodes[i].setProperty("timeToComplete", 0);
-//        }
-//        
-//        int maxSoFar = 0;
-//        int weightOfEdgeFromHighestSoFar= 0;
-//        Relationship currentRelationship;
-//        Node currentNode;
-//        Node currentNeighbor;
-//        for(int j = 0; j < 10; j++){
-//            currentNode = inOrderNodes[j];
-//            Iterator<Relationship> relationships = currentNode.getRelationships().iterator();
-//            maxSoFar = 0;
-//            
-//            while(relationships.hasNext()){
-//               currentRelationship = relationships.next();
-//               currentNeighbor = currentRelationship.getOtherNode(currentNode);
-////               System.out.println((Integer) currentNeighbor.getProperty("order"));
-////               System.out.println((Integer) currentNode.getProperty("order"));
-//               if((Integer) currentNeighbor.getProperty("order") < (Integer) currentNode.getProperty("order")){
-//                   if((Integer) currentNeighbor.getProperty("timeToComplete") >= maxSoFar){
-//                       maxSoFar = (Integer) currentNeighbor.getProperty("timeToComplete");
-//                       weightOfEdgeFromHighestSoFar = (Integer) currentRelationship.getProperty("weight");
-//                   }
-//               }
-//            }
-//            
-//            currentNode.setProperty("timeToComplete", maxSoFar + weightOfEdgeFromHighestSoFar);
-//        }
-//        
-//        for(i = 0; i < 10; i++)
-//            System.out.println(nodes[i].getProperty("timeToComplete"));
-//        graphDb.execute("MATCH (n), ()-[r]-() DELETE n,r");
-//        graphDb.shutdown();
         }
 
 }
