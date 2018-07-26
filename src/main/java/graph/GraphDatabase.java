@@ -287,7 +287,7 @@ public class GraphDatabase implements Command{
                         //time in ms is node weight
                         rel.setProperty("TIME_DIF", resultSet.getLong(6));
                         rel.setProperty("START", resultSet.getString(5));
-                        rel.setProperty("PROCESS", resultSet.getLong(2));
+                        rel.setProperty("PROCESS", resultSet.getString(2));
                         rel.setProperty("VERSION", date);
 
                     }

@@ -7,17 +7,17 @@ var viewer = new BpmnViewer({
   container: '#canvas'
 });
 
+
 viewer.importXML(diagram, function (err) {
   "use strict";
   var nodes = JSONnodes;
-  var nodeTypes = ["bpmn:Task", "bpmn:EndEvent", "bpmn:StartEvent"];
+  $("#total-instances").text(nodes.total_instances);
   var overlays = viewer.get('overlays');
   var elementRegistry = viewer.get('elementRegistry');
-  var elements = {};
   var color = "";
   var totalInstances = nodes["total_instances"];
   var connectionObject;
-
+  var i = 0;
   for (var node in nodes) {
     if (nodes.hasOwnProperty(node) && Array.isArray(nodes[node])) {
       nodes[node].forEach(function(connection){
@@ -31,20 +31,49 @@ viewer.importXML(diagram, function (err) {
           color = "rgba(255,0,0,1)";
 
         connectionObject = elementRegistry.filter(element => element.type == "bpmn:SequenceFlow").find(element => element.businessObject.sourceRef.name === node && element.businessObject.targetRef.name === connection.target)
-        
-        overlays.add(connectionObject, {
-          position: {
-            top: 0,
-            left: 0
-          },
-          html: $('<div class="highlight-overlay">')
-            .css({
-              //a rectangle with width of and height as difference between first and last points of the connection
-              width: Math.max(10, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].x - connectionObject.waypoints[0].x)),
-              height: Math.max(5, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].y - connectionObject.waypoints[0].y)),
-              "background-color": color
-            })
-        })
+        var width = 0;
+        var height = 0;
+        var directionx = 0;
+        var offsety = 0;
+        console.log(connectionObject);
+        for(i = 0; i < connectionObject.waypoints.length - 1; i++){
+          width = connectionObject.waypoints[i + 1].x - connectionObject.waypoints[i].x;
+          height = connectionObject.waypoints[i + 1].y - connectionObject.waypoints[i].y;
+          if(width === 0){
+            width = 10;
+          }
+          if (width < 0){
+            directionx = -1;
+            width = Math.abs(width);
+          }
+          else{
+            directionx = 1;
+          }
+          if(height === 0){
+            height = 10;
+          }
+          if (height < 0){
+            offsety = connectionObject.waypoints[i].x - connectionObject.waypoints[i+1].x;
+            height = Math.abs(height);
+          }
+          else{
+            offsety = 0;
+          }
+          console.log(i + " to " + (i+1) + " width: " + width + ", height: " + height);
+          overlays.add(connectionObject, {
+            position: {
+              top: offsety,
+              left: (connectionObject.waypoints[i].x - connectionObject.waypoints[0].x)
+            },
+            html: $('<div class="highlight-overlay">')
+              .css({
+                //a rectangle with width of and height as difference between first and last points of the connection
+                width: width,
+                height: height,
+                "background-color": color
+              })
+          })
+        }
       });
     }
   }

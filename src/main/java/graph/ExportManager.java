@@ -121,16 +121,20 @@ public class ExportManager implements Command{
         JSONObject node;
         String[] properties = {"target", "time", "instances"};
         String source;
+        String target = "";
         while(result.hasNext()){
             row = result.next();
             node = new JSONObject();
             for(String property : properties){
-                if(property.equals("target"))
-                    node.put(property, getActivityLabel((ArrayList) row.get(property)));
+                if(property.equals("target")){
+                    target = getActivityLabel((ArrayList) row.get(property));
+                    node.put(property, target);
+                }
                 else
                     node.put(property, row.get(property));
                 
             }
+            if(target.equals("null")) continue;
             source = getActivityLabel((ArrayList) row.get("source"));
             if(jsonNodes.containsKey(source)){
                 ((JSONArray) jsonNodes.get(source)).add(node);
@@ -140,7 +144,7 @@ public class ExportManager implements Command{
                 ((JSONArray) jsonNodes.get(source)).add(node);
             }
         }
-        int noInstances = (int) graphDb.execute("MATCH ()-[r]-() RETURN COUNT(r) as num").next().get("num");
+        long noInstances = (long) graphDb.execute("MATCH ()-[r]-() RETURN COUNT(r) as num").next().get("num");
         jsonNodes.put("total_instances", noInstances);
         try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\BPMN-graph\\graphVisualize\\viewBPMN\\resources\\nodes.json")){
                 file.write(jsonNodes.toJSONString());

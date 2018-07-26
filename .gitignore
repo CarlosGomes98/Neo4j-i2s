@@ -10,6 +10,7 @@ local.properties
 .loadpath
 .recommenders
 db*
+node_modules/
 # External tool builders
 .externalToolBuilders/
 
@@ -53,3 +54,5 @@ db*
 .cache-main
 .scala_dependencies
 .worksheet
+/target/
+
