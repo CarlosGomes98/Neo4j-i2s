@@ -1,5 +1,32 @@
 .highlight-overlay {
-    background-color: green; /* color elements as green */
-    opacity: 0.4;
-    pointer-events: none; /* no pointer events, allows clicking through onto the element */
+  background-color: green; /* color elements as green */
+  opacity: 0.4;
+  pointer-events: none; /* no pointer events, allows clicking through onto the element */
   }
+  
+body, html{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding:0;
+}
+.wrapper {
+  display: flex;
+  align-items: stretch;
+}
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100vh;
+}
+
+#sidebar.active {
+  margin-left: -250px;
+}
+
+#canvas{
+  position: absolute;
+  margin-left: 250px;
+  width:100%;
+  height: 100%;
+}

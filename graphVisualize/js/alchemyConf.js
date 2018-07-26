@@ -40,7 +40,3 @@ var config = {
 };
 
 alchemy.begin(config);
-
-alchemy.get().nodes().all().forEach(function(node){
-    alert("lul")
-})

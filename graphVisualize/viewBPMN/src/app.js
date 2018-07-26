@@ -1,12 +1,7 @@
-// we use stringify to inline an example XML document
 import diagram from '../resources/XMLBPMN.bpmn';
 import JSONnodes from '../resources/nodes.json';
-
-// make sure you added bpmn-js to your your project
-// dependencies via npm install --save bpmn-js
 import BpmnViewer from 'bpmn-js';
 import $ from "jquery";
-
 
 var viewer = new BpmnViewer({
   container: '#canvas'
@@ -20,17 +15,11 @@ viewer.importXML(diagram, function (err) {
   var elementRegistry = viewer.get('elementRegistry');
   var elements = {};
   var color = "";
-  console.log(elementRegistry.getAll());
-  // elementRegistry.filter(element => nodeTypes.includes(element.type))
-  //  .forEach(element => {
-  //   if(element.businessObject.name in nodes)
-  //     nodes[element.businessObject.name][3] = element;
-  //  });
   var totalInstances = nodes["total_instances"];
   var connectionObject;
 
   for (var node in nodes) {
-    if (nodes.hasOwnProperty(node)) {
+    if (nodes.hasOwnProperty(node) && Array.isArray(nodes[node])) {
       nodes[node].forEach(function(connection){
         if (connection.instances < totalInstances * 0.1)
           color = "rgba(0,255,0,1)";
@@ -40,10 +29,9 @@ viewer.importXML(diagram, function (err) {
           color = "rgba(255,69,0,1)";
         else
           color = "rgba(255,0,0,1)";
-        console.log(node);
-        console.log(connection.instances);
+
         connectionObject = elementRegistry.filter(element => element.type == "bpmn:SequenceFlow").find(element => element.businessObject.sourceRef.name === node && element.businessObject.targetRef.name === connection.target)
-        console.log(connectionObject);
+        
         overlays.add(connectionObject, {
           position: {
             top: 0,
@@ -51,6 +39,7 @@ viewer.importXML(diagram, function (err) {
           },
           html: $('<div class="highlight-overlay">')
             .css({
+              //a rectangle with width of and height as difference between first and last points of the connection
               width: Math.max(10, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].x - connectionObject.waypoints[0].x)),
               height: Math.max(5, Math.abs(connectionObject.waypoints[connectionObject.waypoints.length - 1].y - connectionObject.waypoints[0].y)),
               "background-color": color
@@ -59,6 +48,22 @@ viewer.importXML(diagram, function (err) {
       });
     }
   }
+
+  var eventBus = viewer.get('eventBus');
+  var source = "";
+  var target = "";
+  eventBus.on("element.hover", e => {
+    if(e.element.type === "bpmn:SequenceFlow"){
+      source = e.element.businessObject.sourceRef.name;
+      target = e.element.businessObject.targetRef.name;
+      node = nodes[source].find(node => node.target == target);
+      $("#source").text(source);
+      $("#target").text(target);
+      $("#time").text(node.time);
+      $("#instances").text(node.instances);
+    }
+
+  })
 
   if (!err) {
     console.log('success!');
