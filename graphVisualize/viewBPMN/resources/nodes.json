@@ -1,1 +1,31 @@
-{"StartEvent_Acceptance":[{"instances":244,"time":0.03688524590163935,"target":"Task_1stLevel"}],"Task_QuantificationInfo":[{"instances":30,"time":24874.866666666658,"target":"Task_2ndLevel"}],"Task_1stLevel":[{"instances":100,"time":2.55,"target":"EndEvent_Acceptance"},{"instances":144,"time":2.4722222222222228,"target":"Task_QuantificationInfo"}],"Task_2ndLevel":[{"instances":15,"time":1.4666666666666668,"target":"EndEvent_Failure"},{"instances":15,"time":1.4666666666666666,"target":"EndEvent_Acceptance"}],"total_instances":1296}
+{
+    "StartEvent_Acceptance": [{
+        "instances": 244,
+        "time": 0.03688524590163935,
+        "target": "Task_1stLevel"
+    }],
+    "Task_QuantificationInfo": [{
+        "instances": 30,
+        "time": 24874.866666666658,
+        "target": "Task_2ndLevel"
+    }],
+    "Task_1stLevel": [{
+        "instances": 100,
+        "time": 2.55,
+        "target": "EndEvent_Acceptance"
+    }, {
+        "instances": 144,
+        "time": 2.4722222222222228,
+        "target": "Task_QuantificationInfo"
+    }],
+    "Task_2ndLevel": [{
+        "instances": 15,
+        "time": 1.4666666666666668,
+        "target": "EndEvent_Failure"
+    }, {
+        "instances": 15,
+        "time": 1.4666666666666666,
+        "target": "EndEvent_Acceptance"
+    }],
+    "total_instances": 1296
+}

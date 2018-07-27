@@ -115,7 +115,7 @@ public class ExportManager implements Command{
      * @return Success or failure message.
      */
     public String bpmn(){
-        Result result = graphDb.execute("MATCH (s)-[r]->(t) RETURN labels(s) as source, labels(t) as target, avg(r.TIME_DIF) as time, COUNT(r) as instances ORDER BY time DESC");
+        Result result = graphDb.execute("MATCH (s)-[r]->(t) WHERE NOT t:null RETURN labels(s) as source, labels(t) as target, avg(r.TIME_DIF) as time, COUNT(r) as instances ORDER BY time DESC");
         JSONObject jsonNodes = new JSONObject();
         Map<String, Object> row;
         JSONObject node;
@@ -144,7 +144,7 @@ public class ExportManager implements Command{
                 ((JSONArray) jsonNodes.get(source)).add(node);
             }
         }
-        long noInstances = (long) graphDb.execute("MATCH ()-[r]-() RETURN COUNT(r) as num").next().get("num");
+        long noInstances = (long) graphDb.execute("MATCH ()-[r]->(t) WHERE NOT t:null RETURN COUNT(r) as num").next().get("num");
         jsonNodes.put("total_instances", noInstances);
         try (FileWriter file = new FileWriter("\\i2S-devenv\\workspace\\BPMN-graph\\graphVisualize\\viewBPMN\\resources\\nodes.json")){
                 file.write(jsonNodes.toJSONString());

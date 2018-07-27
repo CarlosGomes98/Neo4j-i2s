@@ -33,37 +33,39 @@ viewer.importXML(diagram, function (err) {
         connectionObject = elementRegistry.filter(element => element.type == "bpmn:SequenceFlow").find(element => element.businessObject.sourceRef.name === node && element.businessObject.targetRef.name === connection.target)
         var width = 0;
         var height = 0;
-        var directionx = 0;
+        var offsetx = 0;
         var offsety = 0;
         console.log(connectionObject);
         for(i = 0; i < connectionObject.waypoints.length - 1; i++){
           width = connectionObject.waypoints[i + 1].x - connectionObject.waypoints[i].x;
-          height = connectionObject.waypoints[i + 1].y - connectionObject.waypoints[i].y;
+          height = connectionObject.waypoints[i].y - connectionObject.waypoints[i + 1].y;
+          offsetx = connectionObject.waypoints[i].x - connectionObject.waypoints[0].x;
+          offsety = connectionObject.waypoints[i].y - connectionObject.waypoints[0].y;
+          console.log(offsetx, offsety);
+          
           if(width === 0){
+            //vertical section
             width = 10;
+            if(height < 0){
+              height = Math.abs(height);
+            }
           }
-          if (width < 0){
-            directionx = -1;
-            width = Math.abs(width);
-          }
-          else{
-            directionx = 1;
-          }
+
           if(height === 0){
+            //horizontal section
             height = 10;
+            if(offsety < 0) offsety = 0;
+            if(width < 0){
+              width = Math.abs(width);
+              offsetx = offsetx - width;
+            }
           }
-          if (height < 0){
-            offsety = connectionObject.waypoints[i].x - connectionObject.waypoints[i+1].x;
-            height = Math.abs(height);
-          }
-          else{
-            offsety = 0;
-          }
+          
           console.log(i + " to " + (i+1) + " width: " + width + ", height: " + height);
           overlays.add(connectionObject, {
             position: {
-              top: offsety,
-              left: (connectionObject.waypoints[i].x - connectionObject.waypoints[0].x)
+              top: offsety - 5,
+              left: offsetx - 5
             },
             html: $('<div class="highlight-overlay">')
               .css({
